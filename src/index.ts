@@ -1,17 +1,22 @@
 import { Pls } from './PLS'
-import { PlsUser } from './PlsUser'
+import { User } from './User'
+import { Multisig2of2 } from './Multisig2of2'
 
 console.log('starting...')
 const pls = new Pls()
-const alice = new PlsUser('Alice', 'token bind moon roast extend label asset sense comfort require inspire civil')
-const bob = new PlsUser('Bob', 'insect jacket enhance pink exact denial robust salmon gasp image mom champion')
+const arbitrator = new User('Arbitrator', 'toss motion abandon voyage question child day gather drink cycle only payment')
+const alice = new User('Alice', 'token bind moon roast extend label asset sense comfort require inspire civil')
+const bob = new User('Bob', 'insect jacket enhance pink exact denial robust salmon gasp image mom champion')
 
-console.log('Alice address1:', alice.getAddress1())
-console.log('Bob address1:', bob.getAddress1())
+console.log('Arbitrator address0:', arbitrator.address())
+console.log('Alice address0:', alice.address())
+console.log('Bob address0:', bob.address())
 
 // 2.3.1.2.a
 const filePath = './sample.pdf'
 const fileHash = pls.generateFileHash(filePath)
 console.log('fileHash', fileHash)
 
-// 4.1. Use the Bitcoin Testnet to create the multisig wallet (sec- tion 2.3.1, item 2)
+// 2.3.1.2.b
+const multisig = new Multisig2of2(alice, bob)
+console.log('Multisig address0:', multisig.address(), multisig.address() === 'tb1qfzx3xvlcu7g9r928zhperqya2emmdq4ds3jryhwa5mfjqdyz9glqeutxj9')
