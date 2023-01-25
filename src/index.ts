@@ -1,6 +1,7 @@
 import { Pls } from './PLS'
 import { User } from './User'
 import { Multisig2of2 } from './Multisig2of2'
+import { PlsContract } from './PlsContract'
 
 console.log('starting...')
 const pls = new Pls()
@@ -20,3 +21,6 @@ console.log('fileHash', fileHash)
 // 2.3.1.2.b
 const multisig = new Multisig2of2(alice, bob)
 console.log('Multisig address0:', multisig.address(), multisig.address() === 'tb1qfzx3xvlcu7g9r928zhperqya2emmdq4ds3jryhwa5mfjqdyz9glqeutxj9')
+
+const threeMonths = 3 * 30 * 24 * 60 * 60 * 1000
+const contract = new PlsContract(alice, bob, null, arbitrator, null, (new Date()).getTime(), (new Date()).getTime() + threeMonths, fileHash)
