@@ -1,4 +1,4 @@
-@startuml PLS v0.1 - MVP - peers without the network!
+@startuml PLS v0.1 - MnVP - peers without the network - 2-of-2
 
 == personal wallets setup ==
 
