@@ -5,7 +5,7 @@ import { payments, networks } from 'bitcoinjs-lib'
 
 const bip32 = BIP32Factory(ecc)
 
-export class User {
+export class PlsUser {
   constructor(
     public readonly name: string,
     public readonly mnemonic: string,

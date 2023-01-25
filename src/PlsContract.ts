@@ -1,13 +1,13 @@
-import { User } from "./User"
+import { PlsUser } from "./PlsUser"
 
 export class PlsContract {
 
   constructor(
-    public readonly user1: User,
-    public readonly user2: User,
-    public readonly mediator: User | null,
-    public readonly arbitrator: User,
-    public readonly dao: User | null,
+    public readonly user1: PlsUser,
+    public readonly user2: PlsUser,
+    public readonly mediator: PlsUser | null,
+    public readonly arbitrator: PlsUser,
+    public readonly dao: PlsUser | null,
     public readonly creationDate: number,
     public readonly expiringDate: number,
     public readonly fileHash: string

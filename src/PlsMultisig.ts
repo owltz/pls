@@ -2,14 +2,14 @@ import * as bip39 from 'bip39'
 import BIP32Factory from 'bip32'
 import * as ecc from 'tiny-secp256k1'
 import { payments, networks } from 'bitcoinjs-lib'
-import { User } from './User'
+import { PlsUser } from './PlsUser'
 
 const bip32 = BIP32Factory(ecc)
 
-export class Multisig2of2 {
+export class PlsMultisig {
   constructor(
-    public readonly user1: User,
-    public readonly user2: User,
+    public readonly user1: PlsUser,
+    public readonly user2: PlsUser,
   ) { }
 
   public address(num: number = 0) {
@@ -25,7 +25,7 @@ export class Multisig2of2 {
     return address
   }
 
-  private publickeyFor(user: User, num: number) {
+  private publickeyFor(user: PlsUser, num: number) {
     const seed1 = bip39.mnemonicToSeedSync(user.mnemonic);
     const hdRoot1 = bip32.fromSeed(seed1, networks.testnet);
     const childNode1 = hdRoot1.derivePath(`m/48'/1'/0'/2'/0/${num}`)
