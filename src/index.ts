@@ -1,35 +1,30 @@
-import { Pls } from './PLS'
-import { PlsUser } from './PlsUser'
-import { PlsMultisig } from './PlsMultisig'
-import { PlsContract } from './PlsContract'
-import { plsFileHash, plsStringHash } from './PlsHash'
+import { PlsTestsHelper } from './PlsTestsHelper'
 
 console.log('starting...')
 
+// hashing validation (move to unitary test)
+// const plsHashed = plsStringHash('private law society')
+// console.log('plsHashed', plsHashed, plsHashed === '5e886af3a2a2aa842b42151f8e6237cbe25d7d041865b9edebff6a0509105e2d')
+
 const app = async() => {
-  const pls = new Pls()
-  const arbitrator = new PlsUser('Arbitrator', 'toss motion abandon voyage question child day gather drink cycle only payment')
-  const alice = new PlsUser('Alice', 'token bind moon roast extend label asset sense comfort require inspire civil')
-  const bob = new PlsUser('Bob', 'insect jacket enhance pink exact denial robust salmon gasp image mom champion')
+  const pls = new PlsTestsHelper()
 
-  console.log('Arbitrator address0:', arbitrator.addressSinglesig())
-  console.log('Alice address0:', alice.addressSinglesig())
-  console.log('Bob address0:', bob.addressSinglesig())
+  // setup contract and multisig
+  const contract = await pls.buildContract()
+  const multisig = await pls.buildMulitsig()
 
-  const plsHashed = plsStringHash('private law society')
-  console.log('plsHashed', plsHashed, plsHashed === '5e886af3a2a2aa842b42151f8e6237cbe25d7d041865b9edebff6a0509105e2d')
+  console.log('Arbitrator address0:', pls.arbitrator.addressSinglesig())
+  console.log('Alice address0:', pls.alice.addressSinglesig())
+  console.log('Bob address0:', pls.bob.addressSinglesig())
+
+  console.log('contract.asJSON()', contract.asJSON())
 
   // 2.3.1.2.a - generates the PDF file hash
-  const filePath = './docs/PLS-challenge0-9-1.pdf'
-  const fileHash = await plsFileHash(filePath)
-  console.log('fileHash', fileHash)
+  console.log('fileHash', contract.fileHash)
+  console.log('contractHash', contract.generatePlsContractHash())
 
   // 2.3.1.2.b - creates a multisig (2 of 2) wallet for the contract
-  const multisig = new PlsMultisig(alice, bob)
   console.log('Multisig address0:', multisig.address(), multisig.address() === 'tb1qfzx3xvlcu7g9r928zhperqya2emmdq4ds3jryhwa5mfjqdyz9glqeutxj9')
-
-  const threeMonths = 3 * 30 * 24 * 60 * 60 * 1000
-  const contract = new PlsContract(alice, bob, null, arbitrator, null, (new Date()).getTime(), (new Date()).getTime() + threeMonths, fileHash)
 
   // 2.3.1.3 - creates UTXO with the filehash
 

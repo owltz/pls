@@ -1,27 +1,26 @@
+import { plsStringHash } from './PlsHash'
+import { PlsMultisig } from './PlsMultisig'
 import { PlsUser } from "./PlsUser"
 
 export class PlsContract {
+  public version = '1'
 
   constructor(
-    public readonly user1: PlsUser,
-    public readonly user2: PlsUser,
-    public readonly mediator: PlsUser | null,
-    public readonly arbitrator: PlsUser,
-    public readonly dao: PlsUser | null,
+    public readonly user0Publickey: string,
+    public readonly user1Publickey: string,
+    public readonly mediatorPublickey: string,
+    public readonly arbitratorPublickey: string,
+    public readonly daoPublickey: string,
     public readonly creationDate: number,
     public readonly expiringDate: number,
     public readonly fileHash: string
   ) { }
 
-  generateFileHash(filePath: string) {
-    return 'fake-hash'
-  }
-
-  public toJSON(): string {
-    return JSON.stringify(this);
+  public asJSON(pretty: boolean = true): string {
+    return JSON.stringify(this, undefined, pretty ? 2 : undefined)
   }
 
   generatePlsContractHash(): string {
-    return 'fake-hash'
+    return plsStringHash(this.asJSON(false))
   }
 }
