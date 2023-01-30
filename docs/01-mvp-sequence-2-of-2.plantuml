@@ -26,8 +26,8 @@ note left of wallet_contract_priv: wallet_contract are the multisig 2-of-2
 
 == security deposits ==
 
-@privcomp->wallet_contract_priv: makes security deposit from wallet_contract_priv to address0@wallet_contract
-@libwriter->wallet_contract_lib: makes security deposit from wallet_contract_lib to address1@wallet_contract
+@privcomp->wallet_contract_priv: makes security deposit from wallet_priv to address0@wallet_contract
+@libwriter->wallet_contract_lib: makes security deposit from wallet_lib to address1@wallet_contract
 
 == escrow to arbitrator transaction creation ==
 
