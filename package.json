@@ -8,6 +8,7 @@
   "license": "ISC",
   "scripts": {
     "start": "ts-node src/index.ts",
+    "spike00": "ts-node spikes/00_using_regtest.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
@@ -20,6 +21,7 @@
     "bip39": "^3.0.4",
     "bitcoinjs-lib": "^6.1.0",
     "ecpair": "^2.1.0",
+    "regtest-client": "^0.2.0",
     "tiny-secp256k1": "^2.2.1"
   }
 }
