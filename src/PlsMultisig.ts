@@ -1,6 +1,6 @@
 import BIP32Factory from 'bip32'
 import * as ecc from 'tiny-secp256k1'
-import { networks, payments } from 'bitcoinjs-lib'
+import { Network, payments } from 'bitcoinjs-lib'
 import { PlsUser } from './PlsUser'
 
 const bip32 = BIP32Factory(ecc)
@@ -9,6 +9,7 @@ export class PlsMultisig {
   constructor(
     public readonly user1: PlsUser,
     public readonly user2: PlsUser,
+    public readonly network: Network,
   ) { }
 
   public address(num: number = 0) {
@@ -18,9 +19,9 @@ export class PlsMultisig {
     const pubkeys = [publickeyUsr1, publickeyUsr2].sort()
 
     const { address } = payments.p2wsh({
-      redeem: payments.p2ms({ m: 2, pubkeys, network: networks.testnet }),
+      redeem: payments.p2ms({ m: 2, pubkeys, network: this.network }),
     })
 
-    return address
+    return address!
   }
 }

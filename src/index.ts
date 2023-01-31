@@ -7,27 +7,61 @@ console.log('starting...')
 // console.log('plsHashed', plsHashed, plsHashed === '5e886af3a2a2aa842b42151f8e6237cbe25d7d041865b9edebff6a0509105e2d')
 
 const app = async() => {
+  const printBalances = async () => {
+    console.log('arbitrator balance:', await pls.balance(pls.arbitrator.addressSinglesig(0)))
+    console.log('alice balance:', await pls.balance(pls.alice.addressSinglesig(0)))
+    console.log('bob balance:', await pls.balance(pls.bob.addressSinglesig(0)))
+    console.log('multisig balance:', await pls.balance(multisig.address(0)))
+    console.log('-----')
+  }
+
   const pls = new PlsTestsHelper()
 
   // setup contract and multisig
   const contract = await pls.buildContract()
   const multisig = await pls.buildMulitsig()
 
-  console.log('Arbitrator address0:', pls.arbitrator.addressSinglesig())
-  console.log('Alice address0:', pls.alice.addressSinglesig())
-  console.log('Bob address0:', pls.bob.addressSinglesig())
-
+  console.log('Arbitrator address0:', pls.arbitrator.addressSinglesig(0))
+  console.log('Alice address0:', pls.alice.addressSinglesig(0))
+  console.log('Bob address0:', pls.bob.addressSinglesig(0))
+  console.log('-----')
   console.log('contract.asJSON()', contract.asJSON())
+  console.log('-----')
+  await printBalances()
 
-  // 2.3.1.2.a - generates the PDF file hash
+  console.log('>>> 2.3.1.2.a - generates the PDF file hash <<<')
   console.log('fileHash', contract.fileHash)
   console.log('contractHash', contract.generatePlsContractHash())
+  console.log('-----')
 
-  // 2.3.1.2.b - creates a multisig (2 of 2) wallet for the contract
-  console.log('Multisig address0:', multisig.address(), multisig.address() === 'tb1qfzx3xvlcu7g9r928zhperqya2emmdq4ds3jryhwa5mfjqdyz9glqeutxj9')
+  console.log('>>> 2.3.1.2.b - creates a multisig (2 of 2) wallet for the contract <<<')
+  console.log(
+    'Multisig address0:',
+    multisig.address(0),
+    multisig.address(0) === 'tb1qfzx3xvlcu7g9r928zhperqya2emmdq4ds3jryhwa5mfjqdyz9glqeutxj9' // testnet
+      || multisig.address(0) === 'bcrt1qfzx3xvlcu7g9r928zhperqya2emmdq4ds3jryhwa5mfjqdyz9glq59pq8l' // regtest
+  )
+  console.log('-----')
 
-  // 2.3.1.3 - creates UTXO with the filehash
+  console.log('>>> alice and bob singlesig address 0s funding <<<')
+  await pls.fundAddress(pls.alice.addressSinglesig(0), 20000)
+  await pls.fundAddress(pls.bob.addressSinglesig(0), 20000)
 
+  await printBalances()
+
+  console.log('>>> 2.3.1.3 - creates UTXOs with the filehash <<<')
+  const psbt = await pls.buildSecurityDeposit({
+    value: 18000,
+    fromAddress: pls.alice.addressSinglesig(0),
+    toAddress: multisig.address(0),
+    signer: pls.alice,
+  })
+
+  await pls.broadcast(psbt)
+  console.log('txid:', psbt.extractTransaction().getId())
+  console.log('tx hex:', psbt.extractTransaction().toHex())
+
+  await printBalances()
 }
 
 app()

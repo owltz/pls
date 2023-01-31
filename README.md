@@ -1,3 +1,22 @@
+### Local checking
+
+Generate sha3-256 of file:
+
+```
+cat <FILENAME> | openssl dgst -sha3-256
+```
+
+Get transaction details:
+
+```
+bitcoin-cli -regtest getrawtransaction <TRANSACTION_ID> true
+```
+
+Convert Hex to Text / op_return data:
+```
+echo <HEX_VALUE> | xxd -r -p
+```
+
 
 ### Online Decoders
 
