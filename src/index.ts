@@ -84,8 +84,8 @@ const app = async() => {
     payment: multisig.payment(0),
   })
 
-  console.log('bob txid:', psbtArbitrator.extractTransaction().getId())
-  console.log('bob tx hex:', psbtArbitrator.extractTransaction().toHex())
+  console.log('dispute txid:', psbtArbitrator.extractTransaction().getId())
+  console.log('dispute tx hex:', psbtArbitrator.extractTransaction().toHex())
   await printBalances()
 
   console.log('>>> 2.3.1.3d - broadcasts dispute transaction from multisig to arbitrator <<<')
