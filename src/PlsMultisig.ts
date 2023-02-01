@@ -13,15 +13,19 @@ export class PlsMultisig {
   ) { }
 
   public address(num: number = 0) {
+    const { address } = this.payment(num)
+
+    return address!
+  }
+
+  public payment(num: number = 0) {
     const { publicKey: publickeyUsr1 } = this.user1.dataForMultisig(num)
     const { publicKey: publickeyUsr2 } = this.user2.dataForMultisig(num)
 
     const pubkeys = [publickeyUsr1, publickeyUsr2].sort()
 
-    const { address } = payments.p2wsh({
+    return payments.p2wsh({
       redeem: payments.p2ms({ m: 2, pubkeys, network: this.network }),
     })
-
-    return address!
   }
 }

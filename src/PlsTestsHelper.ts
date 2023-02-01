@@ -6,6 +6,7 @@ import { PlsUser } from './PlsUser'
 import { PlsMultisig } from './PlsMultisig'
 import { PlsContract } from './PlsContract'
 import { plsFileHash } from './PlsHash'
+import { BIP32Interface } from 'bip32'
 
 const ECPair = ECPairFactory(ecc)
 
@@ -80,7 +81,65 @@ export class PlsTestsHelper {
       value: 0, // TODO: check if this is needed
     })
     console.log('psbt', psbt.data.globalMap)
-    psbt.signInput(0, data.signer.dataForSinglesig(0).childNode) // TODO: get right signer!!!
+    psbt.signInput(0, data.signer) // TODO: get right signer!!!
+    // console.log('psbt.validateSignaturesOfInput(0, validator)', psbt.validateSignaturesOfInput(0, validator)) // TODO: check best way to validate
+    psbt.finalizeAllInputs()
+
+    let txId = Buffer.from(psbt.extractTransaction().ins[0].hash).reverse().toString('hex')
+    console.log('txId', txId)
+
+    return psbt
+  }
+
+  async buildArbitrationTransaction(data: PlsTransaction) {
+    const fileHash = await this.fileHash()
+    const unspents = await regtestUtils.unspents(data.fromAddress)
+
+    const unspentInput0 = unspents[0] // TODO: find the best unspent, use more than one
+    const transaction0 = await regtestUtils.fetch(unspentInput0.txId)
+    const unspent0 = transaction0.outs[unspentInput0.vout] as any
+    delete unspent0.address
+    unspent0.script = Buffer.from(unspent0.script, 'hex')
+    const witnessUtxo0 = unspent0
+    const witnessScript0 = data.payment!.redeem!.output
+
+    const unspentInput1 = unspents[1] // TODO: find the best unspent, use more than one
+    const transaction1 = await regtestUtils.fetch(unspentInput1.txId)
+    const unspent1 = transaction1.outs[unspentInput1.vout] as any
+    delete unspent1.address
+    unspent1.script = Buffer.from(unspent1.script, 'hex')
+    const witnessUtxo1 = unspent1
+    const witnessScript1 = data.payment!.redeem!.output
+
+    const psbt = new bitcoin.Psbt({ network })
+    psbt.addInput({
+      hash: unspentInput0.txId,
+      index: unspentInput0.vout,
+      witnessUtxo: witnessUtxo0,
+      witnessScript: witnessScript0,
+    })
+    psbt.addInput({
+      hash: unspentInput1.txId,
+      index: unspentInput1.vout,
+      witnessUtxo: witnessUtxo1,
+      witnessScript: witnessScript1,
+    })
+    psbt.addOutput({
+      address: data.toAddress,
+      value: data.value,
+    })
+    // add change output!
+    psbt.addOutput({
+      script: bitcoin.payments.embed({
+        data: [
+          Buffer.from(`PLS${fileHash}`, 'utf8')
+        ]
+      }).output!,
+      value: 0, // TODO: check if this is needed
+    })
+    console.log('psbt', psbt.data.globalMap)
+    psbt.signAllInputs(data.signer) // TODO: get right signer!!!
+    psbt.signAllInputs(data.signer2!) // TODO: get right signer!!!
     // console.log('psbt.validateSignaturesOfInput(0, validator)', psbt.validateSignaturesOfInput(0, validator)) // TODO: check best way to validate
     psbt.finalizeAllInputs()
 
@@ -108,5 +167,7 @@ export interface PlsTransaction {
   value: number,
   fromAddress: string,
   toAddress: string,
-  signer: PlsUser,
+  signer: BIP32Interface,
+  signer2?: BIP32Interface,
+  payment?: bitcoin.Payment,
 }

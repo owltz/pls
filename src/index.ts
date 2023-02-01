@@ -46,21 +46,50 @@ const app = async() => {
   console.log('>>> alice and bob singlesig address 0s funding <<<')
   await pls.fundAddress(pls.alice.addressSinglesig(0), 20000)
   await pls.fundAddress(pls.bob.addressSinglesig(0), 20000)
-
   await printBalances()
 
-  console.log('>>> 2.3.1.3 - creates UTXOs with the filehash <<<')
-  const psbt = await pls.buildSecurityDeposit({
+  console.log('>>> 2.3.1.3a - alice transfer collateral into the multisig <<<')
+  const psbtAlice = await pls.buildSecurityDeposit({
     value: 18000,
     fromAddress: pls.alice.addressSinglesig(0),
     toAddress: multisig.address(0),
-    signer: pls.alice,
+    signer: pls.alice.dataForSinglesig(0).childNode,
   })
 
-  await pls.broadcast(psbt)
-  console.log('txid:', psbt.extractTransaction().getId())
-  console.log('tx hex:', psbt.extractTransaction().toHex())
+  console.log('alice txid:', psbtAlice.extractTransaction().getId())
+  console.log('alice tx hex:', psbtAlice.extractTransaction().toHex())
+  await pls.broadcast(psbtAlice)
+  await printBalances()
 
+  console.log('>>> 2.3.1.3b - bob transfer collateral into the multisig <<<')
+  const psbtBob = await pls.buildSecurityDeposit({
+    value: 18000,
+    fromAddress: pls.bob.addressSinglesig(0),
+    toAddress: multisig.address(0),
+    signer: pls.bob.dataForSinglesig(0).childNode,
+  })
+
+  console.log('bob txid:', psbtBob.extractTransaction().getId())
+  console.log('bob tx hex:', psbtBob.extractTransaction().toHex())
+  await pls.broadcast(psbtBob)
+  await printBalances()
+
+  console.log('>>> 2.3.1.3c - creates dispute transaction from multisig to arbitrator <<<')
+  const psbtArbitrator = await pls.buildArbitrationTransaction({
+    value: 35000,
+    fromAddress: multisig.address(0),
+    toAddress: pls.arbitrator.addressSinglesig(0),
+    signer: pls.bob.dataForMultisig(0).childNode,
+    signer2: pls.alice.dataForMultisig(0).childNode,
+    payment: multisig.payment(0),
+  })
+
+  console.log('bob txid:', psbtArbitrator.extractTransaction().getId())
+  console.log('bob tx hex:', psbtArbitrator.extractTransaction().toHex())
+  await printBalances()
+
+  console.log('>>> 2.3.1.3d - broadcasts dispute transaction from multisig to arbitrator <<<')
+  await pls.broadcast(psbtArbitrator)
   await printBalances()
 }
 
